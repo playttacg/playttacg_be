@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import newsRoutes from "./apis/news/news.routes.js"; // Fixed import naming
+import eventRoutes from "./apis/events/events.routes.js";
 import connectMongoDB from "./config/db.connection.js";
 
 // Load environment variables
@@ -34,8 +35,9 @@ app.get("/", (req, res) => {
   res.status(200).send("Hello");
 });
 
-// Importing Routes
+// Importing Routes 
 app.use("/api/news", newsRoutes); // Ensure routes are exported correctly
+app.use("/api/event" , eventRoutes);
 
 // Catch-all route handler for non-existent routes
 app.all("*", (req, res) => {
