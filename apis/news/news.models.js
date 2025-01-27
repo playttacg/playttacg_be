@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const newsCollection = new mongoose.Schema({
+const newsSchema = new mongoose.Schema({
     title: {
         type: String,
         required: true,
@@ -58,6 +58,6 @@ const newsCollection = new mongoose.Schema({
     },
 }, { timestamps: true });
 
-const News = mongoose.model("News", newsCollection);
+const newCollections = mongoose.model("News", newsSchema);
 
-export default News;
+export default newCollections;
