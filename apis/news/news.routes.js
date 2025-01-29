@@ -1,9 +1,11 @@
 import express from "express";
-import getAllNews from "./news.controllers.js"; // Ensure correct file path and export
+import { getAllNews, getNewsById, getRecentNews } from "./news.controllers.js"; // Use named imports
 
 const router = express.Router();
 
 // Define routes
-router.get("/all", getAllNews)
+router.get("/all", getAllNews);
+router.get('/recentnews', getRecentNews);
+router.get('/:id' , getNewsById);
 
 export default router;
