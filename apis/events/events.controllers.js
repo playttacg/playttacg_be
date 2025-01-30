@@ -1,10 +1,11 @@
+import { isArrayEmpty } from '../../utils/commonUtils.js';
 import eventCollections from './events.models.js';
 
 const getAllEvents = async (req, res) => {
     try {
         const allEvents = await eventCollections.find({});
 
-        if (allEvents.length === 0) {
+        if (isArrayEmpty(allEvents)) {
             return res.status(404).json({ message: 'No events found' });
         }
 

@@ -1,3 +1,4 @@
+import { isArrayEmpty } from '../../utils/commonUtils.js';
 import PlayerCollections from './players.models.js';  // Correct import for your model
 
 // Controller to get all players
@@ -7,7 +8,7 @@ const getAllPlayers = async (req, res) => {
         const players = await PlayerCollections.find({});
         
         // If there are no players in the database
-        if (players.length === 0) {
+        if (isArrayEmpty(players)) {
             return res.status(404).json({ message: 'No players found' });
         }
 
