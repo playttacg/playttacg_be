@@ -40,25 +40,34 @@ export const getPlayerById = async (req, res) => {
 // Function to get top ranking players
 export const getTopRankingPlayers = async (req, res) => {
   try {
+    const page = parseInt(req.query.page) || 1; 
+    const limit = parseInt(req.query.limit) || 10; 
+
+    const skip = (page - 1) * limit;
+
     const topPlayers = await PlayerCollections.find()
-      .sort({ ranking: 1 }) 
-      .limit(10) 
+      .sort({ ranking: 1 }) // Sort by ranking (ascending)
+      .skip(skip) // Skip players from previous pages
+      .limit(limit) // Limit the number of players per page
       .exec();
 
-    // Check if any players are found
-    if (!topPlayers || topPlayers.length === 0) {
-      return res.status(404).json({ message: 'No players found.' });
-    }
+    const totalPlayers = await PlayerCollections.countDocuments();
 
-    // Return the top 10 players
-    res.status(200).json(topPlayers);
+    // Return paginated response
+    res.status(200).json({
+      currentPage: page,
+      totalPages: Math.ceil(totalPlayers / limit), 
+      totalPlayers, 
+      players: topPlayers, 
+    });
   } catch (error) {
     res.status(500).json({
-      message: 'Error fetching top 10 players.',
+      message: 'Error fetching players with pagination.',
       details: error.message,
     });
   }
 };
+
 
 
 
