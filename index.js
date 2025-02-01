@@ -4,6 +4,7 @@ import newsRoutes from "./apis/news/news.routes.js";
 import eventRoutes from "./apis/events/events.routes.js";
 import playerRoutes from "./apis/players/players.routes.js";
 import connectMongoDB from "./config/db.connection.js";
+import cors from "cors";
 
 // Load environment variables
 dotenv.config();
@@ -30,6 +31,7 @@ connectMongoDB()
 // Middleware for parsing JSON request bodies
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); // Add if expecting form data
+app.use(cors()); // Enable CORS for all routes
 
 // Route for the home page
 app.get("/", (req, res) => {
