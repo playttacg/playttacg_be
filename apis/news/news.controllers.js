@@ -37,6 +37,7 @@ export const getRecentNews = async (req, res) => {
       return res.status(500).json({ message: 'Error fetching news', error: error.message });
     }
 };
+
 export const getNewsById = async (req, res) => {
   try {
       const { id } = req.params;  
@@ -55,4 +56,18 @@ export const getNewsById = async (req, res) => {
   }
 };
   
-    
+export const getKRecentNews = async (req, res) => {
+  try {
+    const { count = '4' } = req.query;
+    const kRecentNews = await newsCollection.find({}).sort({ createdAt: -1 }).limit(parseInt(count));
+
+    if (kRecentNews.length === 0) {
+      return res.status(404).json({ message: 'No news found' });
+    }
+
+    return res.status(200).json({ kRecentNews });
+  } catch (error) {
+    console.error('Error fetching news:', error);
+    return res.status(500).json({ message: 'Error fetching news', error: error.message });
+  }
+};
