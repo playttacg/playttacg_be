@@ -20,13 +20,7 @@ const PORT = process.env.PORT;
 
 // Connect to MongoDB
 connectMongoDB()
-  .then(() => {
-    console.log("Connected to MongoDB successfully");
-  })
-  .catch((err) => {
-    console.error("Error connecting to MongoDB:", err);
-    process.exit(1); // Exit the process if DB connection fails
-  });
+
 
 // Middleware for parsing JSON request bodies
 app.use(express.json());
