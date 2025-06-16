@@ -1,5 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
+dotenv.config();
+
 import newsRoutes from "./apis/news/news.routes.js";
 import eventRoutes from "./apis/events/events.routes.js";
 import playerRoutes from "./apis/players/players.routes.js";
@@ -7,7 +9,6 @@ import connectMongoDB from "./config/db.connection.js";
 import cors from "cors";
 
 // Load environment variables
-dotenv.config();
 
 // Ensure required environment variables are available
 if (!process.env.PORT) {

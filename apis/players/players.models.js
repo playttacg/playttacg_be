@@ -35,8 +35,7 @@ const playerSchema = new mongoose.Schema({
     trim: true
   },
   dateOfBirth: {
-    type: Date,
-    required: true
+    type :"String"
   },
   profilePicture: {
     type: String,
