@@ -1,7 +1,8 @@
-import { PutObjectCommand } from '@aws-sdk/client-s3';
+import { PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { isArrayEmpty } from '../../utils/commonUtils.js';
 import PlayerCollections from './players.models.js';
-import { chhattisgarhDistricts } from '../../utils/cgDistrictData.js';
+// import { chhattisgarhDistricts } from '../../utils/cgDistrictData.js';
 import { s3 } from '../../config/configWasabi.js';
 
 // Get all players
@@ -60,26 +61,24 @@ export const getTopRankingPlayers = async (req, res) => {
 };
 
 // Create a new player
-
 export const createPlayer = async (req, res) => {
   try {
     const profilePicture = req.file;
     const { name, email, district, hand, adhaarProof, dateOfBirth } = req.body;
 
     // Validate required fields
-    if (!profilePicture || !name || !email || !district || !hand || !adhaarProof || !dateOfBirth ) {
+    if (!profilePicture || !name || !email || !district || !hand || !adhaarProof || !dateOfBirth) {
       return res.status(400).json({ error: 'All fields are required including profile picture' });
     }
 
-    // Check if player already exists
+    // Check for existing player
     const existingPlayer = await PlayerCollections.findOne({ email: email.trim().toLowerCase() });
     if (existingPlayer) {
       return res.status(409).json({ error: 'Email already exists or user already registered' });
     }
 
-    // Generate safe filename
-    const sanitizedFileName = profilePicture.originalname;
-    const key = `players/${sanitizedFileName}`;
+    // Use original file name only (no prefix)
+    const key = `players/${profilePicture.originalname}`;
 
     // Upload to Wasabi
     await s3.send(
@@ -91,10 +90,19 @@ export const createPlayer = async (req, res) => {
       })
     );
 
-    // Construct public URL
-  const profilePicURL = `${process.env.WASABI_ENDPOINT}/${process.env.WASABI_BUCKET}/${key}`;
+    // Generate presigned URL (7 days)
+  const signedUrl = await getSignedUrl(
+  s3,
+  new GetObjectCommand({
+    Bucket: process.env.WASABI_BUCKET,
+    Key: key,
+    ResponseContentDisposition: 'inline', // 👈 Important line
+  }),
+  { expiresIn: 60 * 60 * 24 * 7 } // 7 days
+);
 
-    // Create player
+
+    // Save player to DB
     const newPlayer = new PlayerCollections({
       name: name.trim(),
       email: email.trim().toLowerCase(),
@@ -102,14 +110,14 @@ export const createPlayer = async (req, res) => {
       hand: hand.trim().toLowerCase(),
       adhaarProof: adhaarProof.trim(),
       dateOfBirth,
-      profilePicture: profilePicURL,
+      profilePicture: signedUrl,
     });
 
     await newPlayer.save();
-
     res.status(201).json({ message: 'Player created successfully', player: newPlayer });
   } catch (error) {
     console.error('Error creating player:', error);
     res.status(500).json({ error: 'Server error. Please try again later.', details: error.message });
   }
 };
+
