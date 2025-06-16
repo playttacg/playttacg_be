@@ -1,3 +1,4 @@
+import { json } from 'express';
 import { isArrayEmpty } from '../../utils/commonUtils.js';
 import newsCollection from './news.models.js';
 
@@ -69,5 +70,33 @@ export const getKRecentNews = async (req, res) => {
   } catch (error) {
     console.error('Error fetching news:', error);
     return res.status(500).json({ message: 'Error fetching news', error: error.message });
+  }
+};
+
+
+export const createNews = async (req, res) => {
+  try {
+    const { title, content, category, imageUrl } = req.body;
+
+    // Validate required fields
+    if (!title || !content || !category || !imageUrl) {
+      return res.status(400).json({ message: 'All fields are required' });
+    }
+
+    // Create and save the news entry
+    const newNews = new newsCollection({
+      title,
+      content,
+      category,
+      imageUrl
+    });
+
+    await newNews.save();
+
+    return res.status(201).json({ message: 'News created successfully', news: newNews });
+
+  } catch (error) {
+    console.error('Error creating news:', error);
+    return res.status(500).json({ message: 'Error creating news', error: error.message });
   }
 };

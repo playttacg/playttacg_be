@@ -5,11 +5,6 @@ const newsSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    slug: {
-        type: String,
-        // required: true,
-        unique: true,
-    },
     content: {
         type: String,
         required: true,
@@ -22,36 +17,36 @@ const newsSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    author: {
-        name: {
-            type: String,
-            required: true,
-        },
-        id: {
-            type: String,
-            required: true,
-        },
-        image: {
-            type: String,
-            required: true,
-        },
-        verified: {
-            type: Boolean,
-            default: false,
-        },
-    },
-    tags: {
-        type: [String],
-        required: true,
-    },
+    // author: {
+    //     name: {
+    //         type: String,
+    //         required: true,
+    //     },
+    //     id: {
+    //         type: String,
+    //         required: true,
+    //     },
+    //     image: {
+    //         type: String,
+    //         required: true,
+    //     },
+    //     verified: {
+    //         type: Boolean,
+    //         default: false,
+    //     },
+    // },
+    // tags: {
+    //     type: [String],
+    //     required: true,
+    // },
     publishedDate: {
         type: Date,
         default: Date.now,
     },
-    status: {
-        type: String,
-        required: true,
-    },
+    // status: {
+    //     type: String,
+    //     required: true,
+    // },
     isFeatured: {
         type: Boolean,
         default: false,

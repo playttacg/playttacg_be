@@ -67,7 +67,7 @@ export const getTopRankingPlayers = async (req, res) => {
       message: 'Error fetching players with pagination.',
       details: error.message,
     });
-  }
+  } 
 };
 
 export const createPlayer = async (req, res) => {
