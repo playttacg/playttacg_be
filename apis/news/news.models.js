@@ -7,7 +7,7 @@ const newsSchema = new mongoose.Schema({
     },
     slug: {
         type: String,
-        required: true,
+        // required: true,
         unique: true,
     },
     content: {

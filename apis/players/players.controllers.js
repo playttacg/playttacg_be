@@ -1,5 +1,6 @@
 import { isArrayEmpty } from '../../utils/commonUtils.js';
 import PlayerCollections from './players.models.js';  // Correct import for your model
+import { chhattisgarhDistricts } from '../../utils/cgDistrictData.js';
 
 // Controller to get all players
 export const getAllPlayers = async (req, res) => {
@@ -69,7 +70,39 @@ export const getTopRankingPlayers = async (req, res) => {
   }
 };
 
+export const createPlayer = async (req, res) => {
+  try {
+    const { name, email, district, hand, adhaarProof, dateOfBirth, profilePicture } = req.body;
 
+    // Validate required fields
+    if (!name || !email || !district || !hand || !adhaarProof || !dateOfBirth || !profilePicture) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
+
+    // Check if the player already exists
+    const existingPlayer = await PlayerCollections.findOne({ email });
+    if (existingPlayer) {
+      return res.status(409).json({ error: 'Email already exists or user already registered' });
+    }
+    // Create new player
+    const newPlayer = new PlayerCollections({
+      name,
+      email,
+      district,
+      hand,
+      adhaarProof,
+      dateOfBirth,
+      profilePicture,
+    });
+
+    await newPlayer.save();
+
+    res.status(201).json({ message: 'Player created successfully', player: newPlayer });
+  } catch (error) {
+    console.error('Error creating player:', error);
+    res.status(500).json({ error: 'Server error. Please try again later.' });
+  }
+}; 
 
 
 
