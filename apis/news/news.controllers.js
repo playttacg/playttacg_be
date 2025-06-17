@@ -3,6 +3,7 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { isArrayEmpty } from '../../utils/commonUtils.js';
 import newsCollection from './news.models.js';
 import { s3 } from '../../config/configWasabi.js';
+import slugify from 'slugify';
 
 // ✅ GET ALL NEWS (with signed image URLs)
 export const getAllNews = async (req, res) => {
@@ -140,6 +141,63 @@ export const createNews = async (req, res) => {
     return res.status(201).json({ message: 'News created successfully', news: newNews });
   } catch (error) {
     console.error('Error creating news:', error);
+    return res.status(500).json({ message: 'Internal server error', error: error.message });
+  }
+};
+
+export const updateNews = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, content, category } = req.body;
+
+    if (!title || !content || !category) {
+      return res.status(400).json({ message: 'All fields (title, content, category) are required.' });
+    }
+
+    // Regenerate slug if title has changed
+    const baseSlug = slugify(title, { lower: true, strict: true });
+    let uniqueSlug = baseSlug;
+    let counter = 1;
+
+    while (await newsCollection.findOne({ slug: uniqueSlug, _id: { $ne: id } })) {
+      uniqueSlug = `${baseSlug}-${counter++}`;
+    }
+
+    const updatedNews = await newsCollection.findByIdAndUpdate(
+      id,
+      {
+        title: title.trim(),
+        content: content.trim(),
+        category: category.trim(),
+        slug: uniqueSlug,
+      },
+      { new: true }
+    );
+ 
+    if (!updatedNews) {
+      return res.status(404).json({ message: 'News not found' });
+    }
+
+    // Generate signed image URL
+    const signedUrl = await getSignedUrl(
+      s3,
+      new GetObjectCommand({
+        Bucket: process.env.WASABI_BUCKET,
+        Key: updatedNews.imageUrl,
+        ResponseContentDisposition: 'inline',
+      }),
+      { expiresIn: 60 * 60 * 24 * 7 }
+    );
+
+    return res.status(200).json({
+      message: 'News updated successfully',
+      news: {
+        ...updatedNews.toObject(),
+        imageUrl: signedUrl,
+      },
+    });
+  } catch (error) {
+    console.error('Error updating news:', error);
     return res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };

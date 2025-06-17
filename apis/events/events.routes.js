@@ -1,6 +1,6 @@
 import express from "express";
-import {getAllEvents ,getEventById,getRecentEvents} from "./events.controllers.js"; // Ensure you're importing correctly
 const router = express.Router();
+import {getAllEvents ,getEventById,getRecentEvents} from "./events.controllers.js"; // Ensure you're importing correctly
 
 router.get('/all', getAllEvents); 
 router.get('/recent', getRecentEvents);

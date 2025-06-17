@@ -5,6 +5,7 @@ dotenv.config();
 import newsRoutes from "./apis/news/news.routes.js";
 import eventRoutes from "./apis/events/events.routes.js";
 import playerRoutes from "./apis/players/players.routes.js";
+import adminRoutes from "./apis/admin/admin.routes.js";
 import connectMongoDB from "./config/db.connection.js";
 import cors from "cors";
 
@@ -37,6 +38,7 @@ app.get("/", (req, res) => {
 app.use("/api/news", newsRoutes); // Ensure routes are exported correctly
 app.use("/api/events" , eventRoutes);
 app.use("/api/players" , playerRoutes);
+app.use("/api/admin" , adminRoutes);
 
 // Catch-all route handler for non-existent routes
 app.all("*", (req, res) => {
