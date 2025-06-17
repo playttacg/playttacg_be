@@ -1,58 +1,58 @@
 import mongoose from "mongoose";
+import slugify from "slugify";
 
 const newsSchema = new mongoose.Schema({
-    title: {
-        type: String,
-        required: true,
-    },
-    content: {
-        type: String,
-        required: true,
-    },
-    category: {
-        type: String,
-        required: true,
-    },
-    imageUrl: {
-        type: String,
-        required: true,
-    },
-    // author: {
-    //     name: {
-    //         type: String,
-    //         required: true,
-    //     },
-    //     id: {
-    //         type: String,
-    //         required: true,
-    //     },
-    //     image: {
-    //         type: String,
-    //         required: true,
-    //     },
-    //     verified: {
-    //         type: Boolean,
-    //         default: false,
-    //     },
-    // },
-    // tags: {
-    //     type: [String],
-    //     required: true,
-    // },
-    publishedDate: {
-        type: Date,
-        default: Date.now,
-    },
-    // status: {
-    //     type: String,
-    //     required: true,
-    // },
-    isFeatured: {
-        type: Boolean,
-        default: false,
-    },
+  title: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  content: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  category: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  imageUrl: {
+    type: String,
+    required: true,
+  },
+  slug: {
+    type: String,
+    unique: true,
+    index: true,
+  },
+  publishedDate: {
+    type: Date,
+    default: Date.now,
+  },
+  isFeatured: {
+    type: Boolean,
+    default: false,
+  },
 }, { timestamps: true });
 
-const newCollections = mongoose.model("News", newsSchema);
+// Pre-save hook to generate a unique slug
+newsSchema.pre("save", async function (next) {
+  if (!this.isModified("title")) return next();
 
-export default newCollections;
+  const baseSlug = slugify(this.title, { lower: true, strict: true });
+  let uniqueSlug = baseSlug;
+  let counter = 1;
+
+  // Ensure slug is unique
+  while (await mongoose.models.News.findOne({ slug: uniqueSlug })) {
+    uniqueSlug = `${baseSlug}-${counter++}`;
+  }
+
+  this.slug = uniqueSlug;
+  next();
+});
+
+const newsCollection = mongoose.model("News", newsSchema);
+
+export default newsCollection;
